@@ -16,8 +16,9 @@ local noobie_widget = {}
 local noobie_popup = awful.popup{
     ontop = true,
     visible = false,
-    shape = gears.shape.rounded_rect,
-    border_width = 1,
+    shape = function(cr, width, height)
+        gears.shape.rounded_rect(cr, width, height, 4)
+    end,    border_width = 1,
     border_color = beautiful.bg_focus,
     maximum_width = 400,
     offset = { y = 5 },
@@ -27,25 +28,36 @@ local noobie_popup = awful.popup{
 local function worker(user_args)
     local args = user_args or {}
     local path = args.path
+    local refresh_rate = args.refresh_rate or 600
 
     noobie_widget = wibox.widget {
         {
             {
-                id = 'icn',
-                forced_height = 20,
-                forced_width = 20,
-                resize = true,
-                widget = wibox.widget.imagebox
+                {
+                    {
+                        id = 'icn',
+                        forced_height = 20,
+                        forced_width = 20,
+                        resize = true,
+                        widget = wibox.widget.imagebox
+                    },
+                    valign = 'center',
+                    layout = wibox.container.place
+                },
+                {
+                    id = 'txt',
+                    widget = wibox.widget.textbox
+                },
+                spacing = 4,
+                layout = wibox.layout.fixed.horizontal
             },
-            valign = 'center',
-            layout = wibox.container.place
+            margins = 4,
+            widget = wibox.container.margin
         },
-        {
-            id = 'txt',
-            widget = wibox.widget.textbox
-        },
-        spacing = 4,
-        layout = wibox.layout.fixed.horizontal,
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, 4)
+        end,
+        widget = wibox.container.background,
         set_text = function(self, new_text)
             self:get_children_by_id('txt')[1]:set_text(new_text)
         end,
@@ -60,45 +72,48 @@ local function worker(user_args)
         widget:set_text(result.widget.text)
         widget:set_icon(result.widget.icon_path)
 
-        local rows = {
-            { widget = wibox.widget.textbox },
-            layout = wibox.layout.fixed.vertical,
-        }
+        if result.menu ~=nil and result.menu.items ~= nil and #result.menu.items > 0 then
 
-        for i = 0, #rows do rows[i]=nil end
-        for _, item in ipairs(result.menu.items) do
-            local row = wibox.widget {
-                {
+            local rows = {
+                { widget = wibox.widget.textbox },
+                layout = wibox.layout.fixed.vertical,
+            }
+
+            for i = 0, #rows do rows[i]=nil end
+            for _, item in ipairs(result.menu.items) do
+                local row = wibox.widget {
                     {
                         {
-                            image = ICONS_DIR .. item.icon .. '.svg',
-                            resize = true,
-                            forced_height = 20,
-                            forced_width = 20,
-                            widget = wibox.widget.imagebox
+                            {
+                                image = ICONS_DIR .. item.icon .. '.svg',
+                                resize = true,
+                                forced_height = 20,
+                                forced_width = 20,
+                                widget = wibox.widget.imagebox
+                            },
+                            {
+                                text = item.title,
+                                font = font,
+                                widget = wibox.widget.textbox
+                            },
+                            spacing = 12,
+                            layout = wibox.layout.fixed.horizontal
                         },
-                        {
-                            text = item.title,
-                            font = font,
-                            widget = wibox.widget.textbox
-                        },
-                        spacing = 12,
-                        layout = wibox.layout.fixed.horizontal
+                        margins = 8,
+                        layout = wibox.container.margin
                     },
-                    margins = 8,
-                    layout = wibox.container.margin
-                },
-                bg = beautiful.bg_normal,
-                widget = wibox.container.background
-            }
-            row:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
-            row:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
+                    bg = beautiful.bg_normal,
+                    widget = wibox.container.background
+                }
+                row:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
+                row:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
 
-            table.insert(rows, row)
+                table.insert(rows, row)
+            end
+
+            noobie_popup:setup(rows)
+
         end
-
-        noobie_popup:setup(rows)
-
 
     end
 
@@ -107,15 +122,17 @@ local function worker(user_args)
             awful.util.table.join(
                     awful.button({}, 1, function()
                         if noobie_popup.visible then
+                            noobie_widget:set_bg('#00000000')
                             noobie_popup.visible = not noobie_popup.visible
                         else
+                            noobie_widget:set_bg(beautiful.bg_focus)
                             noobie_popup:move_next_to(mouse.current_widget_geometry)
                         end
                     end)
             )
     )
 
-    watch(string.format([[sh -c "%s"]], args.path), 10, update_widget, noobie_widget)
+    watch(string.format([[sh -c "%s"]], args.path), refresh_rate, update_widget, noobie_widget)
 
     return noobie_widget
 end
