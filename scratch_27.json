@@ -1,0 +1,30 @@
+{
+  "widget": {
+    "icon_path": "activity",
+    "text": "hello"
+  },
+  "menu": {
+    "items": [
+      {
+        "icon": "bell",
+        "title": "Some title"
+      },
+      {
+        "icon": "check",
+        "title": "Some title"
+      },
+      {
+        "icon": "box",
+        "title": "Some title"
+      },
+      {
+        "icon": "slack",
+        "title": "Some title"
+      },
+      {
+        "icon": "cloud",
+        "title": "Some title"
+      }
+    ]
+  }
+}
