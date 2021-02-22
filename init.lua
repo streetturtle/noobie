@@ -18,7 +18,8 @@ local noobie_popup = awful.popup{
     visible = false,
     shape = function(cr, width, height)
         gears.shape.rounded_rect(cr, width, height, 4)
-    end,    border_width = 1,
+    end,
+    border_width = 1,
     border_color = beautiful.bg_focus,
     maximum_width = 400,
     offset = { y = 5 },
@@ -29,6 +30,8 @@ local function worker(user_args)
     local args = user_args or {}
     local path = args.path
     local refresh_rate = args.refresh_rate or 600
+
+    local has_menu = false
 
     noobie_widget = wibox.widget {
         {
@@ -48,6 +51,7 @@ local function worker(user_args)
                     id = 'txt',
                     widget = wibox.widget.textbox
                 },
+                id = 'spc',
                 spacing = 4,
                 layout = wibox.layout.fixed.horizontal
             },
@@ -59,11 +63,16 @@ local function worker(user_args)
         end,
         widget = wibox.container.background,
         set_text = function(self, new_text)
-            self:get_children_by_id('txt')[1]:set_text(new_text)
+            if new_text == nil or new_text == '' then
+                self:get_children_by_id('txt')[1]:set_text('')
+                self:get_children_by_id('spc')[1]:set_spacing(0)
+            else
+                self:get_children_by_id('txt')[1]:set_text(new_text)
+            end
         end,
         set_icon = function(self, new_icon)
             self:get_children_by_id('icn')[1]:set_image(ICONS_DIR .. new_icon .. '.svg')
-        end
+        end,
     }
 
     local update_widget = function(widget, stdout, stderr)
@@ -72,8 +81,9 @@ local function worker(user_args)
         widget:set_text(result.widget.text)
         widget:set_icon(result.widget.icon_path)
 
-        if result.menu ~=nil and result.menu.items ~= nil and #result.menu.items > 0 then
+        has_menu = result.menu ~= nil and result.menu.items ~= nil and #result.menu.items > 0
 
+        if has_menu then
             local rows = {
                 { widget = wibox.widget.textbox },
                 layout = wibox.layout.fixed.vertical,
@@ -105,8 +115,27 @@ local function worker(user_args)
                     bg = beautiful.bg_normal,
                     widget = wibox.container.background
                 }
-                row:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
-                row:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
+
+                local old_cursor, old_wibox
+                row:connect_signal("mouse::enter", function(c)
+                    c:set_bg(beautiful.bg_focus)
+                    local wb = mouse.current_wibox
+                    old_cursor, old_wibox = wb.cursor, wb
+                    wb.cursor = "hand1"
+                end)
+                row:connect_signal("mouse::leave", function(c)
+                    c:set_bg(beautiful.bg_normal)
+                    if old_wibox then
+                        old_wibox.cursor = old_cursor
+                        old_wibox = nil
+                    end
+                end)
+
+                row:buttons(awful.util.table.join(awful.button({}, 1, function()
+                    awful.spawn.with_shell(item.onclick)
+                    noobie_widget:set_bg('#00000000')
+                    noobie_popup.visible = not noobie_popup.visible
+                end)))
 
                 table.insert(rows, row)
             end
@@ -115,22 +144,24 @@ local function worker(user_args)
 
         end
 
+        if has_menu then
+            noobie_widget:buttons(
+                    awful.util.table.join(
+                            awful.button({}, 1, function()
+                                if noobie_popup.visible then
+                                    noobie_widget:set_bg('#00000000')
+                                    noobie_popup.visible = not noobie_popup.visible
+                                else
+                                    noobie_widget:set_bg(beautiful.bg_focus)
+                                    noobie_popup:move_next_to(mouse.current_widget_geometry)
+                                end
+                            end)
+                    )
+            )
+        end
     end
 
 
-    noobie_widget:buttons(
-            awful.util.table.join(
-                    awful.button({}, 1, function()
-                        if noobie_popup.visible then
-                            noobie_widget:set_bg('#00000000')
-                            noobie_popup.visible = not noobie_popup.visible
-                        else
-                            noobie_widget:set_bg(beautiful.bg_focus)
-                            noobie_popup:move_next_to(mouse.current_widget_geometry)
-                        end
-                    end)
-            )
-    )
 
     watch(string.format([[sh -c "%s"]], args.path), refresh_rate, update_widget, noobie_widget)
 
