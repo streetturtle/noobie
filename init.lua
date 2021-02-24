@@ -10,7 +10,7 @@ local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/noobie'
 local ICONS_DIR = WIDGET_DIR .. '/feather_icons/'
 
-
+local cur_stdout
 local noobie_widget = {}
 
 local noobie_popup = awful.popup{
@@ -26,12 +26,25 @@ local noobie_popup = awful.popup{
     widget = {}
 }
 
+local function show_warning(message)
+    naughty.notify{
+        preset = naughty.config.presets.critical,
+        title = 'Noobie',
+        text = message}
+end
+
 local function worker(user_args)
     local args = user_args or {}
-    local path = args.path
     local refresh_rate = args.refresh_rate or 600
+    local path = args.path
+
+    if path == nil then
+        show_warning("Cannot create a widget, required parameter 'path' is not provided")
+        return
+    end
 
     local has_menu = false
+    local has_mouse_actions = false
 
     noobie_widget = wibox.widget {
         {
@@ -76,6 +89,10 @@ local function worker(user_args)
     }
 
     local update_widget = function(widget, stdout, stderr)
+
+        if (cur_stdout == stdout) then return
+        else cur_stdout = stdout
+        end
 
         local result = json.decode(stdout)
         widget:set_text(result.widget.text)
@@ -142,9 +159,6 @@ local function worker(user_args)
 
             noobie_popup:setup(rows)
 
-        end
-
-        if has_menu then
             noobie_widget:buttons(
                     awful.util.table.join(
                             awful.button({}, 1, function()
@@ -159,11 +173,22 @@ local function worker(user_args)
                     )
             )
         end
+
+        local actions = result.widget.mouse_actions
+        has_mouse_actions = actions ~= nil
+
+        if has_mouse_actions then
+
+            widget:buttons(awful.util.table.join(
+                    awful.button({}, 1, function() if actions.on_left_click ~= nill then awful.spawn.with_shell(actions.on_left_click) end end),
+                    awful.button({}, 2, function() if actions.on_right_click ~= nill then awful.spawn.with_shell(actions.on_right_click) end end),
+                    awful.button({}, 4, function() if actions.on_scroll_up ~= nill then awful.spawn.with_shell(actions.on_scroll_up) end end),
+                    awful.button({}, 5, function() if actions.on_scroll_down ~= nill then awful.spawn.with_shell(actions.on_scroll_down) end end)
+            ))
+        end
     end
 
-
-
-    watch(string.format([[sh -c "%s"]], args.path), refresh_rate, update_widget, noobie_widget)
+    watch(string.format([[sh -c "%s"]], path), refresh_rate, update_widget, noobie_widget)
 
     return noobie_widget
 end

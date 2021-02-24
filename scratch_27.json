@@ -1,7 +1,13 @@
 {
   "widget": {
     "icon_path": "activity",
-    "text": "hello"
+    "text": "hello",
+    "mouse_actions": {
+      "on_scroll_up": "asd",
+      "on_scroll_down": "",
+      "on_left_click": "",
+      "on_right_click": ""
+    }
   },
   "menu": {
     "items": [
