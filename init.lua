@@ -5,26 +5,12 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 local json = require("json")
 
-
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/noobie'
 local ICONS_DIR = WIDGET_DIR .. '/feather_icons/'
 
 local cur_stdout
 local noobie_widget = {}
-
-local noobie_popup = awful.popup{
-    ontop = true,
-    visible = false,
-    shape = function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, 4)
-    end,
-    border_width = 1,
-    border_color = beautiful.bg_focus,
-    maximum_width = 400,
-    offset = { y = 5 },
-    widget = {}
-}
 
 local function show_warning(message)
     naughty.notify{
@@ -37,14 +23,28 @@ local function worker(user_args)
     local args = user_args or {}
     local refresh_rate = args.refresh_rate or 600
     local path = args.path
+    local background = args.background or '#00000000'
 
     if path == nil then
         show_warning("Cannot create a widget, required parameter 'path' is not provided")
         return
     end
-
+    local noobie_popup = awful.popup{
+        ontop = true,
+        visible = false,
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, 4)
+        end,
+        border_width = 1,
+        border_color = beautiful.bg_focus,
+        maximum_width = 400,
+        offset = { y = 5 },
+        widget = {}
+    }
     local has_menu = false
     local has_mouse_actions = false
+    local menu_buttons = {}
+    local mouse_actions_buttons = {}
 
     noobie_widget = wibox.widget {
         {
@@ -74,6 +74,7 @@ local function worker(user_args)
         shape = function(cr, width, height)
             gears.shape.rounded_rect(cr, width, height, 4)
         end,
+        bg = background,
         widget = wibox.container.background,
         set_text = function(self, new_text)
             if new_text == nil or new_text == '' then
@@ -89,7 +90,12 @@ local function worker(user_args)
     }
 
     local update_widget = function(widget, stdout, stderr)
+        if stderr ~= '' then
+            show_warning(stderr)
+            return
+        end
 
+        --- do nothing if the output hasn't changed
         if (cur_stdout == stdout) then return
         else cur_stdout = stdout
         end
@@ -101,10 +107,7 @@ local function worker(user_args)
         has_menu = result.menu ~= nil and result.menu.items ~= nil and #result.menu.items > 0
 
         if has_menu then
-            local rows = {
-                { widget = wibox.widget.textbox },
-                layout = wibox.layout.fixed.vertical,
-            }
+            local rows = { layout = wibox.layout.fixed.vertical }
 
             for i = 0, #rows do rows[i]=nil end
             for _, item in ipairs(result.menu.items) do
@@ -148,9 +151,9 @@ local function worker(user_args)
                     end
                 end)
 
-                row:buttons(awful.util.table.join(awful.button({}, 1, function()
+                row:buttons(gears.table.join(awful.button({}, 1, function()
                     awful.spawn.with_shell(item.onclick)
-                    noobie_widget:set_bg('#00000000')
+                    widget:set_bg(background)
                     noobie_popup.visible = not noobie_popup.visible
                 end)))
 
@@ -159,19 +162,17 @@ local function worker(user_args)
 
             noobie_popup:setup(rows)
 
-            noobie_widget:buttons(
-                    awful.util.table.join(
+            menu_buttons =  gears.table.join(
                             awful.button({}, 1, function()
                                 if noobie_popup.visible then
-                                    noobie_widget:set_bg('#00000000')
+                                    widget:set_bg(background)
                                     noobie_popup.visible = not noobie_popup.visible
                                 else
-                                    noobie_widget:set_bg(beautiful.bg_focus)
+                                    widget:set_bg(beautiful.bg_focus)
                                     noobie_popup:move_next_to(mouse.current_widget_geometry)
                                 end
                             end)
                     )
-            )
         end
 
         local actions = result.widget.mouse_actions
@@ -179,13 +180,15 @@ local function worker(user_args)
 
         if has_mouse_actions then
 
-            widget:buttons(awful.util.table.join(
-                    awful.button({}, 1, function() if actions.on_left_click ~= nill then awful.spawn.with_shell(actions.on_left_click) end end),
-                    awful.button({}, 2, function() if actions.on_right_click ~= nill then awful.spawn.with_shell(actions.on_right_click) end end),
-                    awful.button({}, 4, function() if actions.on_scroll_up ~= nill then awful.spawn.with_shell(actions.on_scroll_up) end end),
-                    awful.button({}, 5, function() if actions.on_scroll_down ~= nill then awful.spawn.with_shell(actions.on_scroll_down) end end)
-            ))
+            mouse_actions_buttons = gears.table.join(
+                    awful.button({}, 1, function() if actions.on_left_click ~= nil then awful.spawn.with_shell(actions.on_left_click) end end),
+                    awful.button({}, 2, function() if actions.on_right_click ~= nil then awful.spawn.with_shell(actions.on_right_click) end end),
+                    awful.button({}, 4, function() if actions.on_scroll_up ~= nil then awful.spawn.with_shell(actions.on_scroll_up) end end),
+                    awful.button({}, 5, function() if actions.on_scroll_down ~= nil then awful.spawn.with_shell(actions.on_scroll_down) end end)
+            )
         end
+
+    widget:buttons(gears.table.join(mouse_actions_buttons, menu_buttons))
     end
 
     watch(string.format([[sh -c "%s"]], path), refresh_rate, update_widget, noobie_widget)

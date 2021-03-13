@@ -1,0 +1,31 @@
+{
+  "widget": {
+    "icon_path": "smile",
+    "text": "noobie",
+    "mouse_actions": {
+      "on_scroll_up": "echo 'scroll up'",
+      "on_scroll_down": "echo 'scroll down'",
+      "on_right_click": "echo 'right click'"
+    }
+  },
+  "menu": {
+    "items": [
+      {
+        "icon": "bell",
+        "title": "Say hi!",
+        "onclick": "notify-send 'hi!'"
+      },
+      {
+        "icon": "terminal",
+        "title": "Execute some script",
+        "onclick": "/tmp/somescript.sh"
+      },
+      {
+        "icon": "slack",
+        "title": "OpenSlack",
+        "onclick": "xdg-open https://slack.com"
+      }
+    ]
+  }
+}
+
