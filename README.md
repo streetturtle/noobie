@@ -1,5 +1,7 @@
 # noobie
 
+Still under development!
+
 Create a wibar widget for Awesome WM with no lua code!
 
 This is widget-maker tool - it creates a widget based on a definition described in JSON format and returned by a script. 
@@ -70,14 +72,16 @@ Or you can check existing plugins in this repo: https://github.com/streetturtle/
 
 ## Installation
 
-1. Download the latest release under ~/.config/awesome/ folder
+1. Clone the repo under ~/.config/awesome/ folder
 1. At the top of rc.lua add an import:
-
-```lua
-local noobie_exmaple = require("noobie")
-```
+ 
+  ```lua
+  local noobie_exmaple_1 = require("noobie")
+  local noobie_exmaple_2 = require("noobie")
+  ```
 1. Add a widget to wibox and provide a path to your script:
-
-```lua
-noobie{ path = os.getenv("HOME") .. '/.config/awesome/noobie/test.sh' },
-```
+ 
+  ```lua
+  noobie_exmaple_1{ path = os.getenv("HOME") .. '/.config/awesome/noobie/test.sh' },
+  noobie_exmaple_2{ path = os.getenv("HOME") .. '/.config/awesome/noobie/othertest.py' },
+  ```
