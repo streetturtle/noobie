@@ -9,7 +9,7 @@ For example, if your script returns a following JSON:
 ```json
 {
   "widget": {
-    "icon_path": "smile",
+    "icon": "smile",
     "text": "noobie",
     "mouse_actions": {
       "on_scroll_up": "echo 'scroll up'",
@@ -29,7 +29,7 @@ You can also create widgets with menu:
 ```json
 {
   "widget": {
-    "icon_path": "smile",
+    "icon": "smile",
     "text": "noobie",
     "mouse_actions": {
       "on_scroll_up": "echo 'scroll up'",
@@ -62,6 +62,13 @@ You can also create widgets with menu:
 gives:
 
 ![](./screenshots/screenshot2.png)
+
+## Features:
+
+ - icon (either a widget or a menu item) can be one of:
+    - a name of an icon from [feather icons](https://feathericons.com/): `arrow-down-circle`;
+    - a path to a file: `/tmp/someicon.png;
+    - a URL pointing to the icon: `http://some-icon.online/image.png`;
 
 ## Plugins
 

@@ -4,10 +4,14 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gears = require("gears")
 local json = require("json")
+local gfs = require("gears.filesystem")
+local spawn = require("awful.spawn")
+
 
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/noobie'
 local ICONS_DIR = WIDGET_DIR .. '/feather_icons/'
+local CACHE_DIR = os.getenv("HOME") .. '/.cache/noobie/icons'
 
 local cur_stdout
 local noobie_widget = {}
@@ -29,6 +33,11 @@ local function worker(user_args)
         show_warning("Cannot create a widget, required parameter 'path' is not provided")
         return
     end
+
+    if not gfs.dir_readable(CACHE_DIR) then
+        gfs.make_directories(CACHE_DIR)
+    end
+
     local noobie_popup = awful.popup{
         ontop = true,
         visible = false,
@@ -52,8 +61,8 @@ local function worker(user_args)
                 {
                     {
                         id = 'icn',
-                        forced_height = 20,
-                        forced_width = 20,
+                        --forced_height = 20,
+                        --forced_width = 20,
                         resize = true,
                         widget = wibox.widget.imagebox
                     },
@@ -85,8 +94,27 @@ local function worker(user_args)
             end
         end,
         set_icon = function(self, new_icon)
-            self:get_children_by_id('icn')[1]:set_image(ICONS_DIR .. new_icon .. '.svg')
-        end,
+            -- new_icon is a path to a file
+            if new_icon:sub(1, 1) == '/' then
+                self:get_children_by_id('icn')[1]:set_image(new_icon)
+
+            -- new_icon is a url of the icon
+            elseif new_icon:sub(1, 4) == 'http' then
+                local icon_path = CACHE_DIR .. '/' .. new_icon:sub(-16)
+                if not gfs.file_readable(icon_path) then
+                    local download_cmd = string.format([[sh -c "curl -n --create-dirs -o  %s %s"]], icon_path, new_icon)
+                    print(download_cmd)
+                    spawn.easy_async(download_cmd,
+                            function() self:get_children_by_id('icn')[1]:set_image(icon_path) end)
+                else
+                    self:get_children_by_id('icn')[1]:set_image(icon_path)
+                end
+
+            -- new_icon is a feather icon
+            else
+                self:get_children_by_id('icn')[1]:set_image(ICONS_DIR .. new_icon .. '.svg')
+            end
+        end
     }
 
     local update_widget = function(widget, stdout, stderr)
@@ -102,7 +130,7 @@ local function worker(user_args)
 
         local result = json.decode(stdout)
         widget:set_text(result.widget.text)
-        widget:set_icon(result.widget.icon_path)
+        widget:set_icon(result.widget.icon)
 
         has_menu = result.menu ~= nil and result.menu.items ~= nil and #result.menu.items > 0
 
@@ -111,16 +139,39 @@ local function worker(user_args)
 
             for i = 0, #rows do rows[i]=nil end
             for _, item in ipairs(result.menu.items) do
+
+                local item_image = wibox.widget{
+                    resize = true,
+                    forced_height = 20,
+                    forced_width = 20,
+                    widget = wibox.widget.imagebox
+                }
+
+                -- new_icon is a path to a file
+                if item.icon:sub(1, 1) == '/' then
+                    item_image:set_image(item.icon)
+
+                    -- new_icon is a url of the icon
+                elseif item.icon:sub(1, 4) == 'http' then
+                    local icon_path = CACHE_DIR .. '/' .. item.icon:sub(-16)
+                    if not gfs.file_readable(icon_path) then
+                        local download_cmd = string.format([[sh -c "curl -n --create-dirs -o  %s %s"]], icon_path, item.icon)
+                        print(download_cmd)
+                        spawn.easy_async(download_cmd,
+                                function() item_image:set_image(icon_path) end)
+                    else
+                        item_image:set_image(icon_path)
+                    end
+
+                    -- new_icon is a feather icon
+                else
+                    item_image:set_image(ICONS_DIR .. item.icon .. '.svg')
+                end
+
                 local row = wibox.widget {
                     {
                         {
-                            {
-                                image = ICONS_DIR .. item.icon .. '.svg',
-                                resize = true,
-                                forced_height = 20,
-                                forced_width = 20,
-                                widget = wibox.widget.imagebox
-                            },
+                            item_image,
                             {
                                 text = item.title,
                                 font = font,
