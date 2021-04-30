@@ -12,6 +12,7 @@
     "items": [
       {
         "icon": "https://avatars.githubusercontent.com/u/9363150?s=60&v=4/2x/circled-down--v2.png",
+        "icon_height": 40,
         "title": "Say hi!",
         "onclick": "notify-send 'hi!'"
       },
@@ -24,6 +25,12 @@
         "icon": "slack",
         "title": "OpenSlack",
         "onclick": "xdg-open https://slack.com"
+      },
+      {
+        "title": "-"
+      },
+      {
+        "title": "Menu item with no icon",
       }
     ]
   }

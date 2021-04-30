@@ -6,6 +6,8 @@ local gears = require("gears")
 local json = require("json")
 local gfs = require("gears.filesystem")
 local spawn = require("awful.spawn")
+local naughty = require("naughty")
+local row_builder = require("noobie.row_builder")
 
 
 local HOME_DIR = os.getenv("HOME")
@@ -46,6 +48,8 @@ local function worker(user_args)
         end,
         border_width = 1,
         border_color = beautiful.bg_focus,
+        width = 200,
+        minimum_width = 100,
         maximum_width = 400,
         offset = { y = 5 },
         widget = {}
@@ -98,7 +102,7 @@ local function worker(user_args)
             if new_icon:sub(1, 1) == '/' then
                 self:get_children_by_id('icn')[1]:set_image(new_icon)
 
-            -- new_icon is a url of the icon
+            -- new_icon is a url to the icon
             elseif new_icon:sub(1, 4) == 'http' then
                 local icon_path = CACHE_DIR .. '/' .. new_icon:sub(-16)
                 if not gfs.file_readable(icon_path) then
@@ -140,73 +144,7 @@ local function worker(user_args)
             for i = 0, #rows do rows[i]=nil end
             for _, item in ipairs(result.menu.items) do
 
-                local item_image = wibox.widget{
-                    resize = true,
-                    forced_height = 20,
-                    forced_width = 20,
-                    widget = wibox.widget.imagebox
-                }
-
-                -- new_icon is a path to a file
-                if item.icon:sub(1, 1) == '/' then
-                    item_image:set_image(item.icon)
-
-                    -- new_icon is a url of the icon
-                elseif item.icon:sub(1, 4) == 'http' then
-                    local icon_path = CACHE_DIR .. '/' .. item.icon:sub(-16)
-                    if not gfs.file_readable(icon_path) then
-                        local download_cmd = string.format([[sh -c "curl -n --create-dirs -o  %s %s"]], icon_path, item.icon)
-                        print(download_cmd)
-                        spawn.easy_async(download_cmd,
-                                function() item_image:set_image(icon_path) end)
-                    else
-                        item_image:set_image(icon_path)
-                    end
-
-                    -- new_icon is a feather icon
-                else
-                    item_image:set_image(ICONS_DIR .. item.icon .. '.svg')
-                end
-
-                local row = wibox.widget {
-                    {
-                        {
-                            item_image,
-                            {
-                                text = item.title,
-                                font = font,
-                                widget = wibox.widget.textbox
-                            },
-                            spacing = 12,
-                            layout = wibox.layout.fixed.horizontal
-                        },
-                        margins = 8,
-                        layout = wibox.container.margin
-                    },
-                    bg = beautiful.bg_normal,
-                    widget = wibox.container.background
-                }
-
-                local old_cursor, old_wibox
-                row:connect_signal("mouse::enter", function(c)
-                    c:set_bg(beautiful.bg_focus)
-                    local wb = mouse.current_wibox
-                    old_cursor, old_wibox = wb.cursor, wb
-                    wb.cursor = "hand1"
-                end)
-                row:connect_signal("mouse::leave", function(c)
-                    c:set_bg(beautiful.bg_normal)
-                    if old_wibox then
-                        old_wibox.cursor = old_cursor
-                        old_wibox = nil
-                    end
-                end)
-
-                row:buttons(gears.table.join(awful.button({}, 1, function()
-                    awful.spawn.with_shell(item.onclick)
-                    widget:set_bg(background)
-                    noobie_popup.visible = not noobie_popup.visible
-                end)))
+                local row = row_builder:build_row(item, widget, noobie_popup)
 
                 table.insert(rows, row)
             end
