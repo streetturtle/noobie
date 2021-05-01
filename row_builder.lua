@@ -39,19 +39,23 @@ local function build_icon_and_text_row(item, widget, noobie_popup)
     if item.icon:sub(1, 1) == '/' then
         item_image:set_image(item.icon)
 
-        -- new_icon is a url of the icon
+    -- new_icon is a url of the icon
     elseif item.icon:sub(1, 4) == 'http' then
         local icon_path = CACHE_DIR .. '/' .. item.icon:sub(-16)
-        if not gfs.file_readable(icon_path) then
-            local download_cmd = string.format([[sh -c "curl -n --create-dirs -o  %s %s"]], icon_path, item.icon)
-            print(download_cmd)
-            spawn.easy_async(download_cmd,
-                    function() item_image:set_image(icon_path) end)
-        else
+        if gfs.file_readable(icon_path) then
             item_image:set_image(icon_path)
+        else
+            local download_cmd = string.format([[sh -c "curl -L -f --create-dirs -o  %s %s"]], icon_path, item.icon)
+            spawn.easy_async(download_cmd, function(stdout, stderr, reason, exit_code)
+                if (exit_code == 0) then
+                    item_image:set_image(icon_path)
+                else
+                    item_image:set_image(item.icon_fallback)
+                end
+            end)
         end
 
-        -- new_icon is a feather icon
+    -- new_icon is a feather icon
     else
         item_image:set_image(ICONS_DIR .. item.icon .. '.svg')
     end

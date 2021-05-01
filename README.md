@@ -4,7 +4,7 @@ Still under development!
 
 Create a wibar widget for Awesome WM with no lua code!
 
-This is widget-maker tool - it creates a widget based on a definition described in JSON format and returned by a script. 
+This is a widget-maker tool - it creates a widget based on a definition described in JSON format and returned by a script. 
 
 For example, if your script returns a following JSON:
 
@@ -26,7 +26,7 @@ noobie will convert it to following widget:
 
 ![screenshot](./screenshots/screenshot.png).
 
-You can also create widgets with menu:
+You can also create widgets with a menu:
 
 ```json
 {
@@ -63,19 +63,21 @@ You can also create widgets with menu:
 
 gives:
 
-![](./screenshots/screenshot2.png)
+![screenshot2](./screenshots/screenshot2.png)
 
 ## Features:
 
- - icon (either a widget or a menu item) can be one of:
+ - icon (either of a widget or of a menu item) can be one of:
     - a name of an icon from [feather icons](https://feathericons.com/): `arrow-down-circle`;
     - a path to a file: `/tmp/someicon.png;
-    - a URL pointing to the icon: `http://some-icon.online/image.png`;
-
+    - a URL pointing to the icon: `http://some-icon.online/image.png` (with a fallback icon);
+ - a notification with details in case your script failed:
+ 
+  ![error notification](./screenshots/screenshot-errors.png)
+ 
 ## Plugins
 
-You can create your own scripts in any language, the only rule is - it should return a proper JSON. 
-Or you can check existing plugins in this repo: https://github.com/streetturtle/noobie-plugins.
+Check out existing plugins in this repo: https://github.com/streetturtle/noobie-plugins.
 
 ## Installation
 
