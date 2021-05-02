@@ -2,11 +2,8 @@
 
 Still under development!
 
-Create a wibar widget for Awesome WM with no lua code!
-
-This is a widget-maker tool - it creates a widget based on a definition described in JSON format and returned by a script. 
-
-For example, if your script returns a following JSON:
+This is a widget-maker tool - it creates a widget based on a JSON definition returned by a script. 
+For example, if your script returns following JSON:
 
 ```json
 {
@@ -14,71 +11,58 @@ For example, if your script returns a following JSON:
     "icon": "smile",
     "text": "noobie",
     "mouse_actions": {
-      "on_scroll_up": "echo 'scroll up'",
-      "on_scroll_down": "echo 'scroll down'",
       "on_right_click": "echo 'right click'"
     }
   }
 }
 ```
 
-noobie will convert it to following widget:
+noobie will convert it to the widget:
 
 ![screenshot](./screenshots/screenshot.png).
 
-You can also create widgets with a menu:
+More complex example (from a [people-in-space](https://github.com/streetturtle/noobie-plugins/tree/master/people-in-space) plugin) with a menu, each menu item has an icon, title and subtitle:
 
-```json
-{
-  "widget": {
-    "icon": "smile",
-    "text": "noobie",
-    "mouse_actions": {
-      "on_scroll_up": "echo 'scroll up'",
-      "on_scroll_down": "echo 'scroll down'",
-      "on_right_click": "echo 'right click'"
-    }
-  },
-  "menu": {
-    "items": [
-      {
-        "icon": "bell",
-        "title": "Say hi!",
-        "onclick": "notify-send 'hi!'"
-      },
-      {
-        "icon": "terminal",
-        "title": "Execute some script",
-        "onclick": "/tmp/somescript.sh"
-      },
-      {
-        "icon": "slack",
-        "title": "OpenSlack",
-        "onclick": "xdg-open https://slack.com"
-      }
-    ]
-  }
-}
-```
+![screenshot](./screenshots/screenshot3.png).
 
-gives:
-
-![screenshot2](./screenshots/screenshot2.png)
+For more examples check out plugins repository: [noobie-plugins](https://github.com/streetturtle/noobie-plugins)
 
 ## Features:
 
- - icon (either of a widget or of a menu item) can be one of:
-    - a name of an icon from [feather icons](https://feathericons.com/): `arrow-down-circle`;
-    - a path to a file: `/tmp/someicon.png;
-    - a URL pointing to the icon: `http://some-icon.online/image.png` (with a fallback icon);
+ - dropdown menu:
+ 
+   ![menu](./screenshots/screenshot2.png)
+ 
+ - mouse actions (scroll up/down, right click);
+ - icon could be either a local file, a feathericons icon or an image from URL;
  - a notification with details in case your script failed:
  
-  ![error notification](./screenshots/screenshot-errors.png)
+   ![error notification](./screenshots/screenshot-errors.png)
  
 ## Plugins
 
 Check out existing plugins in this repo: https://github.com/streetturtle/noobie-plugins.
 
+## Creating a plugin
+
+Please consult a **noobie.schema.json** for details. Below are few important excerpts:
+
+- `icon` of the widget or menu item can be one of 
+  - a name of feathericons icon, you can get it here: [feathericons.com](https://feathericons.com/); 
+  - an absolute path to the image file;
+  - URL to the image file. If you are not sure image exists, you can add a `icon_fallback` field with an absolute path to the fallback image;
+ - for a horizontal line in the menu add an item with title equals to '-', like  
+    ```json
+    { "title":  "-" }
+    ```
+  - for a header menu item set `header` field to true, note that the `icon` field will be ignored:
+    ```json
+    {
+      "header": "true",
+      "title": "Header Title"
+    }
+    ```
+ 
 ## Installation
 
 1. Clone the repo under ~/.config/awesome/ folder

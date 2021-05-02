@@ -1,6 +1,6 @@
 {
   "widget": {
-    "icon": "https://avatars.githubusercontent.com/u/9363150?s=60&v=4/2x/circled-down--v2.png",
+    "icon": "smile",
     "text": "noobie",
     "mouse_actions": {
       "on_scroll_up": "echo 'scroll up'",
@@ -11,7 +11,7 @@
   "menu": {
     "items": [
       {
-        "icon": "https://avatars.githubusercontent.com/u/9363150?s=60&v=4/2x/circled-down--v2.png",
+        "icon": "https://avatars.githubusercontent.com/u/9363150?v=4",
         "icon_height": 40,
         "title": "Say hi!",
         "onclick": "notify-send 'hi!'"

@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "widget": {
+      "type": "object",
+      "properties": {
+        "icon": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "mouse_actions": {
+          "type": "object",
+          "properties": {
+            "on_scroll_up": {
+              "type": "string"
+            },
+            "on_scroll_down": {
+              "type": "string"
+            },
+            "on_right_click": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "menu": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "icon": {
+                  "type": "string"
+                },
+                "icon_height": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "onclick": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "onclick"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "items"
+      ]
+    }
+  },
+  "required": [
+    "widget"
+  ]
+}
