@@ -102,7 +102,12 @@ local function worker(user_args)
             if new_icon:sub(1, 1) == '/' then
                 self:get_children_by_id('icn')[1]:set_image(new_icon)
 
-            -- new_icon is a url to the icon
+            -- new_icon is a relative path to the file
+            elseif new_icon:sub(1, 1) == '~' then
+                self:get_children_by_id('icn')[1]:set_image(HOME_DIR .. '/' .. new_icon:sub(3))
+
+
+                -- new_icon is a url to the icon
             elseif new_icon:sub(1, 4) == 'http' then
                 local icon_path = CACHE_DIR .. '/' .. new_icon:sub(-16)
                 if not gfs.file_readable(icon_path) then

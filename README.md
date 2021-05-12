@@ -34,7 +34,7 @@ For more examples check out plugins repository: [noobie-plugins](https://github.
    ![menu](./screenshots/screenshot2.png)
  
  - mouse actions (scroll up/down, right click);
- - icon could be either a local file, a feathericons icon or an image from URL;
+ - icon could be either a local file, a [feathericons](https://feathericons.com/) icon or an image from URL;
  - a notification with details in case your script failed:
  
    ![error notification](./screenshots/screenshot-errors.png)

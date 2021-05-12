@@ -35,9 +35,14 @@ local function build_icon_and_text_row(item, widget, noobie_popup)
         widget = wibox.widget.imagebox
     }
 
-    -- new_icon is a path to a file
+    -- new_icon is an absolute path to a file
     if item.icon:sub(1, 1) == '/' then
         item_image:set_image(item.icon)
+
+    -- new_icon is a relative path to the file
+    elseif item.icon:sub(1, 1) == '~' then
+        print(HOME_DIR .. '/' .. item.icon:sub(3))
+        item_image:set_image(HOME_DIR .. '/' .. item.icon:sub(3))
 
     -- new_icon is a url of the icon
     elseif item.icon:sub(1, 4) == 'http' then
@@ -130,11 +135,11 @@ end
 
 
 function row_builder:build_row(item, widget, noobie_popup)
-    if item.header == true then
+    if item.type == 'header' then
         return build_header_row(item)
     elseif item.title ~= nil and #item.title > 0 and item.icon ~= nil and #item.icon > 0 then
         return build_icon_and_text_row(item, widget, noobie_popup)
-    elseif item.title ~= nil and item.title == '-' then
+    elseif item.type == 'separator' then
         return wibox.widget {
             {
                 orientation = 'horizontal',

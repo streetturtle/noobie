@@ -22,15 +22,19 @@
         "onclick": "/tmp/somescript.sh"
       },
       {
+        "type": "header",
+        "title": "Header"
+      },
+      {
         "icon": "slack",
         "title": "OpenSlack",
         "onclick": "xdg-open https://slack.com"
       },
       {
-        "title": "-"
+        "type" : "separator"
       },
       {
-        "title": "Menu item with no icon",
+        "title": "Menu item with no icon and no action"
       }
     ]
   }
