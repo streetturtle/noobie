@@ -1,7 +1,5 @@
 # noobie
 
-Still under development!
-
 This is a widget-maker tool - it creates a widget based on a JSON definition returned by a script. 
 For example, if your script returns following JSON:
 
@@ -78,3 +76,10 @@ Please consult a **noobie.schema.json** for details. Below are few important exc
     noobie_exmaple_1{ path = os.getenv("HOME") .. '/.config/awesome/noobie/test.sh' },
     noobie_exmaple_2{ path = os.getenv("HOME") .. '/.config/awesome/noobie/othertest.py' },
     ```
+    
+# Troubleshooting
+
+In case of any problem / issue / question:
+ - create an [issue](https://github.com/streetturtle/noobie/issues/new/choose)
+ - raise a question on [Discussions](https://github.com/streetturtle/noobie/discussions)!
+ - ping me on AwesomeWM's discord, here's an [invite](https://discord.gg/XYvn8R5)
