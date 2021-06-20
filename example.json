@@ -12,7 +12,7 @@
     "items": [
       {
         "icon": "https://avatars.githubusercontent.com/u/9363150?v=4",
-        "icon_height": 40,
+        "icon_size": 40,
         "title": "Say hi!",
         "onclick": "notify-send 'hi!'"
       },

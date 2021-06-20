@@ -1,7 +1,5 @@
 # noobie
 
-Still under development!
-
 This is a widget-maker tool - it creates a widget based on a JSON definition returned by a script. 
 For example, if your script returns following JSON:
 

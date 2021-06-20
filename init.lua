@@ -15,6 +15,7 @@ local WIDGET_DIR = HOME_DIR .. '/.config/awesome/noobie'
 local ICONS_DIR = WIDGET_DIR .. '/feather_icons/'
 local CACHE_DIR = os.getenv("HOME") .. '/.cache/noobie/icons'
 
+
 local cur_stdout
 local noobie_widget = {}
 
@@ -24,6 +25,7 @@ local function show_warning(message)
         title = 'Noobie',
         text = message}
 end
+
 
 local function worker(user_args)
     local args = user_args or {}
@@ -106,13 +108,11 @@ local function worker(user_args)
             elseif new_icon:sub(1, 1) == '~' then
                 self:get_children_by_id('icn')[1]:set_image(HOME_DIR .. '/' .. new_icon:sub(3))
 
-
-                -- new_icon is a url to the icon
+            -- new_icon is a url to the icon
             elseif new_icon:sub(1, 4) == 'http' then
                 local icon_path = CACHE_DIR .. '/' .. new_icon:sub(-16)
                 if not gfs.file_readable(icon_path) then
                     local download_cmd = string.format([[sh -c "curl -n --create-dirs -o  %s %s"]], icon_path, new_icon)
-                    print(download_cmd)
                     spawn.easy_async(download_cmd,
                             function() self:get_children_by_id('icn')[1]:set_image(icon_path) end)
                 else
@@ -182,7 +182,7 @@ local function worker(user_args)
             )
         end
 
-    widget:buttons(gears.table.join(mouse_actions_buttons, menu_buttons))
+        widget:buttons(gears.table.join(mouse_actions_buttons, menu_buttons))
     end
 
     watch(string.format([[sh -c "%s"]], path), refresh_rate, update_widget, noobie_widget)
