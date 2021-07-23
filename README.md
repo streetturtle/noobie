@@ -76,6 +76,11 @@ Please consult a **noobie.schema.json** for details. Below are few important exc
     noobie_exmaple_1{ path = os.getenv("HOME") .. '/.config/awesome/noobie/test.sh' },
     noobie_exmaple_2{ path = os.getenv("HOME") .. '/.config/awesome/noobie/othertest.py' },
     ```
+If your widget is static you can define it in a JSON file and use like this:
+
+```lua
+noobie_exmaple_1{ path = 'cat ' .. os.getenv("HOME") .. '/.config/awesome/noobie/test.json' },
+```
     
 # Troubleshooting
 
