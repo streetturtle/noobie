@@ -88,3 +88,5 @@ In case of any problem / issue / question:
  - create an [issue](https://github.com/streetturtle/noobie/issues/new/choose)
  - raise a question on [Discussions](https://github.com/streetturtle/noobie/discussions)!
  - ping me on AwesomeWM's discord, here's an [invite](https://discord.gg/XYvn8R5)
+
+test
